@@ -14,18 +14,28 @@ class MainActivityViewModel(private val userUseCase: UserUseCase) : ViewModel() 
     private val result = MutableLiveData<ResultState>()
     val isLoading = MutableLiveData<Boolean>()
     val observableResult: LiveData<ResultState> = result
+    val feedbackUser = MutableLiveData<Boolean>()
 
     fun retrieveData() {
         userUseCase.getUsers()
             .defaultSchedulers()
-            .doOnSubscribe { isLoading.value = true }
+            .doOnSubscribe {
+                isLoading.value = true
+                feedbackUser.value = false
+            }
             .doFinally { isLoading.value = false }
             .subscribe(
                 {
-                    result.value = ResultState.Success(it)
+                    if (it.isEmpty()) {
+                        result.value = ResultState.EmptyList
+                        feedbackUser.value = true
+                    } else {
+                        result.value = ResultState.Success(it)
+                    }
                 },
                 {
                     result.value = ResultState.OnError
+                    feedbackUser.value = true
                     it.printStackTrace()
                 }).also { composeDisposable.add(it) }
     }
