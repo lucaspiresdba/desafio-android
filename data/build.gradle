@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 30
@@ -41,4 +42,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
 
     api "org.koin:koin-core:$koin_version"
+    api "org.koin:koin-android:$koin_version"
+
+    api "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-rxjava2:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
 }
