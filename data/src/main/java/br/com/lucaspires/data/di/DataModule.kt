@@ -2,9 +2,11 @@ package br.com.lucaspires.data.di
 
 import android.content.Context
 import androidx.room.Room
+import br.com.lucaspires.data.repository.Repository
+import br.com.lucaspires.data.repository.RepositoryImp
+import br.com.lucaspires.data.source.local.ContactDatabase
 import br.com.lucaspires.data.source.local.SharedPreferencesHelper
 import br.com.lucaspires.data.source.local.SharedPreferencesHelperImp
-import br.com.lucaspires.data.source.local.ContactDatabase
 import br.com.lucaspires.data.source.remote.service.PicPayService
 import br.com.lucaspires.data.source.remote.service.intercepter.CacheInterceptor
 import io.reactivex.schedulers.Schedulers
@@ -62,4 +64,6 @@ val dataModule = module {
     single<SharedPreferencesHelper> {
         SharedPreferencesHelperImp(get())
     }
+
+    factory<Repository> { RepositoryImp(get(), get(), get()) }
 }

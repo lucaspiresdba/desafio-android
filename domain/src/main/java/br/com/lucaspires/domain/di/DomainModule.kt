@@ -5,5 +5,5 @@ import br.com.lucaspires.domain.usecase.ContactUseCaseImp
 import org.koin.dsl.module
 
 val domainModule = module {
-    factory<ContactUseCase> { ContactUseCaseImp(get(), get(), get()) }
+    factory<ContactUseCase> { ContactUseCaseImp(get()) }
 }

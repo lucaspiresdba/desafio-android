@@ -1,5 +1,6 @@
 package br.com.lucaspires.domain.usecase
 
+import br.com.lucaspires.data.repository.Repository
 import br.com.lucaspires.data.source.local.SharedPreferencesHelper
 import br.com.lucaspires.data.source.local.ContactDAO
 import br.com.lucaspires.data.source.model.ContactEntity
@@ -22,13 +23,7 @@ import java.io.IOException
 class ContactUseCaseImpTest {
 
     @Mock
-    lateinit var service: PicPayService
-
-    @Mock
-    lateinit var contactDAO: ContactDAO
-
-    @Mock
-    lateinit var sharedPreferencesHelper: SharedPreferencesHelper
+    lateinit var repository: Repository
 
     lateinit var contactUseCase: ContactUseCase
 
@@ -36,63 +31,23 @@ class ContactUseCaseImpTest {
     fun setup() {
         MockitoAnnotations.initMocks(this)
         RxJavaPlugins.setIoSchedulerHandler { Schedulers.trampoline() }
-        contactUseCase = ContactUseCaseImp(service, contactDAO, sharedPreferencesHelper)
+        contactUseCase = ContactUseCaseImp(repository)
+    }
+
+    @Test
+    fun shouldBeConvertedToModelList(){
+        whenever(repository.getContacts()).thenReturn(getUsersListRemote())
+
+        contactUseCase.getContacts()
+            .test()
+            .assertValue { it[1].name == "test user 2" }
+
+        verify(repository).getContacts()
     }
 
     @After
     fun after() {
-        Mockito.verifyNoMoreInteractions(service, contactDAO, sharedPreferencesHelper)
-    }
-
-    @Test
-    fun shouldBeStorageAndReturnSuccesRemoteCall() {
-        whenever(service.getUsers()).thenReturn(getUsersListRemote())
-        whenever(sharedPreferencesHelper.checkIfNeedUpdateCache()).thenReturn(true)
-
-        contactUseCase.getContacts().test()
-            .assertValue { it[1].name == "test user 2" }
-
-        verify(service).getUsers()
-        verify(sharedPreferencesHelper).checkIfNeedUpdateCache()
-        verify(sharedPreferencesHelper).saveLastUpdate()
-        verify(contactDAO).insertContacts(any())
-    }
-
-    @Test
-    fun shouldNotStorageAndReturnSuccesRemoteCall() {
-        whenever(service.getUsers()).thenReturn(getUsersListRemote())
-        whenever(sharedPreferencesHelper.checkIfNeedUpdateCache()).thenReturn(false)
-
-        contactUseCase.getContacts()
-            .test()
-            .assertValue { it[0].name == "test user" }
-
-        verify(service).getUsers()
-        verify(sharedPreferencesHelper).checkIfNeedUpdateCache()
-    }
-
-    @Test
-    fun shouldBeIOExceptionAndGetLocalData() {
-        whenever(service.getUsers()).thenReturn(Single.error(IOException()))
-        whenever(contactDAO.getLocalContacts()).thenReturn(getUsersListLocal())
-
-        contactUseCase.getContacts()
-            .test()
-            .assertValue { it[1].name == "local test user 2" }
-
-        verify(service).getUsers()
-        verify(contactDAO).getLocalContacts()
-    }
-
-    @Test
-    fun shouldBeError() {
-        whenever(service.getUsers()).thenReturn(Single.error(Exception("No IOException")))
-
-        contactUseCase.getContacts()
-            .test()
-            .assertError { it.message == "No IOException" }
-
-        verify(service).getUsers()
+        Mockito.verifyNoMoreInteractions(repository)
     }
 
     private fun getUsersListRemote() = Single.just(
@@ -102,10 +57,4 @@ class ContactUseCaseImpTest {
         )
     )
 
-    private fun getUsersListLocal() = Single.just(
-        listOf(
-            ContactEntity(0, "", "local test user", "testUser"),
-            ContactEntity(1, "", "local test user 2", "testUser2")
-        )
-    )
 }
