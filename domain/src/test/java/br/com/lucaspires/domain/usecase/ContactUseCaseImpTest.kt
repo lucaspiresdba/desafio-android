@@ -1,9 +1,9 @@
 package br.com.lucaspires.domain.usecase
 
 import br.com.lucaspires.data.source.local.SharedPreferencesHelper
-import br.com.lucaspires.data.source.local.UserDAO
-import br.com.lucaspires.data.source.model.UserEntity
-import br.com.lucaspires.data.source.model.UserResponse
+import br.com.lucaspires.data.source.local.ContactDAO
+import br.com.lucaspires.data.source.model.ContactEntity
+import br.com.lucaspires.data.source.model.ContactsResponse
 import br.com.lucaspires.data.source.remote.service.PicPayService
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
@@ -19,29 +19,29 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.io.IOException
 
-class UserUseCaseImpTest {
+class ContactUseCaseImpTest {
 
     @Mock
     lateinit var service: PicPayService
 
     @Mock
-    lateinit var userDAO: UserDAO
+    lateinit var contactDAO: ContactDAO
 
     @Mock
     lateinit var sharedPreferencesHelper: SharedPreferencesHelper
 
-    lateinit var userUseCase: UserUseCase
+    lateinit var contactUseCase: ContactUseCase
 
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
         RxJavaPlugins.setIoSchedulerHandler { Schedulers.trampoline() }
-        userUseCase = UserUseCaseImp(service, userDAO, sharedPreferencesHelper)
+        contactUseCase = ContactUseCaseImp(service, contactDAO, sharedPreferencesHelper)
     }
 
     @After
     fun after() {
-        Mockito.verifyNoMoreInteractions(service, userDAO, sharedPreferencesHelper)
+        Mockito.verifyNoMoreInteractions(service, contactDAO, sharedPreferencesHelper)
     }
 
     @Test
@@ -49,13 +49,13 @@ class UserUseCaseImpTest {
         whenever(service.getUsers()).thenReturn(getUsersListRemote())
         whenever(sharedPreferencesHelper.checkIfNeedUpdateCache()).thenReturn(true)
 
-        userUseCase.getUsers().test()
+        contactUseCase.getContacts().test()
             .assertValue { it[1].name == "test user 2" }
 
         verify(service).getUsers()
         verify(sharedPreferencesHelper).checkIfNeedUpdateCache()
         verify(sharedPreferencesHelper).saveLastUpdate()
-        verify(userDAO).insertUsers(any())
+        verify(contactDAO).insertContacts(any())
     }
 
     @Test
@@ -63,7 +63,7 @@ class UserUseCaseImpTest {
         whenever(service.getUsers()).thenReturn(getUsersListRemote())
         whenever(sharedPreferencesHelper.checkIfNeedUpdateCache()).thenReturn(false)
 
-        userUseCase.getUsers()
+        contactUseCase.getContacts()
             .test()
             .assertValue { it[0].name == "test user" }
 
@@ -74,21 +74,21 @@ class UserUseCaseImpTest {
     @Test
     fun shouldBeIOExceptionAndGetLocalData() {
         whenever(service.getUsers()).thenReturn(Single.error(IOException()))
-        whenever(userDAO.getUsersLocal()).thenReturn(getUsersListLocal())
+        whenever(contactDAO.getLocalContacts()).thenReturn(getUsersListLocal())
 
-        userUseCase.getUsers()
+        contactUseCase.getContacts()
             .test()
             .assertValue { it[1].name == "local test user 2" }
 
         verify(service).getUsers()
-        verify(userDAO).getUsersLocal()
+        verify(contactDAO).getLocalContacts()
     }
 
     @Test
     fun shouldBeError() {
         whenever(service.getUsers()).thenReturn(Single.error(Exception("No IOException")))
 
-        userUseCase.getUsers()
+        contactUseCase.getContacts()
             .test()
             .assertError { it.message == "No IOException" }
 
@@ -97,15 +97,15 @@ class UserUseCaseImpTest {
 
     private fun getUsersListRemote() = Single.just(
         listOf(
-            UserResponse("", "test user", 0, "testUser"),
-            UserResponse("", "test user 2", 0, "testUser2")
+            ContactsResponse("", "test user", 0, "testUser"),
+            ContactsResponse("", "test user 2", 0, "testUser2")
         )
     )
 
     private fun getUsersListLocal() = Single.just(
         listOf(
-            UserEntity(0, "", "local test user", "testUser"),
-            UserEntity(1, "", "local test user 2", "testUser2")
+            ContactEntity(0, "", "local test user", "testUser"),
+            ContactEntity(1, "", "local test user 2", "testUser2")
         )
     )
 }

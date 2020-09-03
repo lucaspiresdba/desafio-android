@@ -3,11 +3,11 @@ package com.picpay.desafio.android.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import br.com.lucaspires.domain.usecase.UserUseCase
+import br.com.lucaspires.domain.usecase.ContactUseCase
 import com.picpay.desafio.android.defaultSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
-class MainActivityViewModel(private val userUseCase: UserUseCase) : ViewModel() {
+class ContactViewModel(private val contactUseCase: ContactUseCase) : ViewModel() {
 
     private val composeDisposable = CompositeDisposable()
 
@@ -17,7 +17,7 @@ class MainActivityViewModel(private val userUseCase: UserUseCase) : ViewModel() 
     val feedbackUser = MutableLiveData<Boolean>()
 
     fun retrieveData() {
-        userUseCase.getUsers()
+        contactUseCase.getContacts()
             .defaultSchedulers()
             .doOnSubscribe {
                 isLoading.value = true

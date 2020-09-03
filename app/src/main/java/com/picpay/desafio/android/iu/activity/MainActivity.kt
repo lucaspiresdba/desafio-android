@@ -10,15 +10,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.picpay.desafio.android.R
 import com.picpay.desafio.android.isToHide
-import com.picpay.desafio.android.iu.view.UserListAdapter
-import com.picpay.desafio.android.viewmodel.MainActivityViewModel
+import com.picpay.desafio.android.iu.view.ContactListAdapter
+import com.picpay.desafio.android.viewmodel.ContactViewModel
 import com.picpay.desafio.android.viewmodel.ResultState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
-    private val viewModel: MainActivityViewModel by viewModel()
-    private val usersAdapter by lazy { UserListAdapter() }
+    private val viewModel: ContactViewModel by viewModel()
+    private val usersAdapter by lazy { ContactListAdapter() }
     private val progressBar: ProgressBar by lazy { findViewById<ProgressBar>(R.id.user_list_progress_bar) }
     private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.recyclerView) }
     private val buttonReload: Button by lazy { findViewById<Button>(R.id.button_try_again) }
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         viewModel.observableResult.observe(this, Observer {
             when (it) {
-                is ResultState.Success -> usersAdapter.users = it.list
+                is ResultState.Success -> usersAdapter.contacts = it.list
                 is ResultState.EmptyList -> showFeedbackUser(getString(R.string.no_contacts))
                 is ResultState.OnError -> showFeedbackUser(getString(R.string.error))
             }

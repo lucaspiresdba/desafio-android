@@ -4,14 +4,14 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import br.com.lucaspires.data.source.model.UserEntity
+import br.com.lucaspires.data.source.model.ContactEntity
 import io.reactivex.Single
 
 @Dao
-interface UserDAO {
+interface ContactDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUsers(userEntity: List<UserEntity>)
+    fun insertContacts(contactEntity: List<ContactEntity>)
 
-    @Query("SELECT * FROM userEntity")
-    fun getUsersLocal(): Single<List<UserEntity>>
+    @Query("SELECT * FROM contactEntity")
+    fun getLocalContacts(): Single<List<ContactEntity>>
 }

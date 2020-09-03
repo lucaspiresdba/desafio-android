@@ -3,8 +3,8 @@ package br.com.lucaspires.data.source.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "userEntity")
-data class UserEntity(
+@Entity(tableName = "contactEntity")
+data class ContactEntity(
     @PrimaryKey
     val id: Int,
     val img: String,

@@ -1,9 +1,9 @@
 package br.com.lucaspires.domain.di
 
-import br.com.lucaspires.domain.usecase.UserUseCase
-import br.com.lucaspires.domain.usecase.UserUseCaseImp
+import br.com.lucaspires.domain.usecase.ContactUseCase
+import br.com.lucaspires.domain.usecase.ContactUseCaseImp
 import org.koin.dsl.module
 
 val domainModule = module {
-    factory<UserUseCase> { UserUseCaseImp(get(), get(), get()) }
+    factory<ContactUseCase> { ContactUseCaseImp(get(), get(), get()) }
 }
